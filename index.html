@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Senhas Seguras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a2e;
+            color: #fff;
+        }
+        .container {
+            text-align: center;
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            cursor: pointer;
+            background: #0f3460;
+            color: white;
+        }
+        button:hover {
+            background: #e94560;
+        }
+        .strength-bar-container {
+            margin-top: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .strength-bar {
+            height: 100%;
+            border-radius: 5px;
+            width: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gerador de Senhas Seguras</h2>
+        <label for="length">Comprimento da Senha:</label>
+        <input type="number" id="length" min="8" max="200" value="16">
+        <br>
+        <button onclick="generatePassword()">Gerar Senha</button>
+        <br>
+        <input type="text" id="password" readonly>
+        <button onclick="copyToClipboard()">Copiar</button>
+        
+        <div class="strength-bar-container">
+            <div id="strength-bar" class="strength-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        function generatePassword() {
+            const length = document.getElementById('length').value;
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?/"; 
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById('password').value = password;
+            updateStrengthBar(password);
+        }
+
+        function copyToClipboard() {
+            const passwordField = document.getElementById('password');
+            passwordField.select();
+            document.execCommand('copy');
+            alert('Senha copiada!');
+        }
+
+        function updateStrengthBar(password) {
+            const strengthBar = document.getElementById('strength-bar');
+            const strength = calculatePasswordStrength(password);
+
+            strengthBar.style.width = strength + '%';
+            if (strength <= 25) {
+                strengthBar.style.backgroundColor = 'red';
+            } else if (strength <= 50) {
+                strengthBar.style.backgroundColor = 'orange';
+            } else if (strength <= 75) {
+                strengthBar.style.backgroundColor = 'yellow';
+            } else {
+                strengthBar.style.backgroundColor = 'green';
+            }
+        }
+
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            // Aumenta a pontuação com base no comprimento
+            if (password.length >= 8) score += 10;
+            if (password.length >= 12) score += 10;
+            if (password.length >= 16) score += 10;
+            if (password.length >= 32) score += 10;  // Para senhas mais longas
+            if (password.length >= 64) score += 10;  // Senhas muito longas ainda aumentam a pontuação
+
+            // Aumenta a pontuação com base na diversidade de caracteres
+            if (/[A-Z]/.test(password)) score += 10;
+            if (/[a-z]/.test(password)) score += 10;
+            if (/[0-9]/.test(password)) score += 10;
+            if (/[\W_]/.test(password)) score += 10;
+
+            // Senha muito longa (acima de 100 caracteres) ganha uma pontuação maior
+            if (password.length > 100) score += 10;
+
+            return Math.min(score, 100); // Maximum score of 100
+        }
+    </script>
+</body>
+</html>
